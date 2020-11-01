@@ -1,0 +1,72 @@
+---
+title: "ModelEvaluation_Dataset Jumlah Siswa dan Guru DKI Jakarta 2018"
+output: html_document
+---
+
+
+```{r}
+Data <- read.csv(file="data jumlah siswa dan guru sma jkt 2018.csv", header = TRUE)
+Data
+nrow(Data)
+```
+
+```{r}
+library(caret)
+set.seed(1)
+
+#splitting data into training and test sets
+trainIndex <- createDataPartition(Data$guru, p = 0.6)$Resample1
+
+trainingSet <- Data[trainIndex, ]
+testingSet <- Data[-trainIndex, ]
+
+trainingSet
+testingSet
+```
+
+
+```{r load_data, results="hide", attr.source = ".numberLines"}
+Data <- read.csv(file="data jumlah siswa dan guru sma jkt 2018.csv", header = TRUE)
+summary(Data)
+```
+
+
+#Confussion Matrix
+#It take a 'few' minutes
+```{r}
+library(caret)
+train_control <- trainControl(method="cv", number=10)
+
+modelNB <- train(status ~ npsn + guru, method = "nb", trControl = train_control, data = Data)
+
+modelNB$resample
+confusionMatrix(modelNB)
+```
+
+
+#It take a 'few' minutes
+``````{r repeated, results="hide", warning = FALSE, message=FALSE, attr.source = ".numberLines"}
+train_control <- trainControl(method="repeatedcv", number=10, repeats=5)
+
+modelNB <- train(status ~ npsn + guru, method = "nb", trControl = train_control, data = Data)
+
+modelNB$resample
+confusionMatrix(modelNB)
+```
+
+
+# Leave-One-Out cross validation (LOOCV)
+#It take a 'few' minutes
+```{r loov, warning = FALSE, message=FALSE, attr.source = ".numberLines", results="hide"}
+train_control <- trainControl(method="LOOCV")
+
+modelNB <- train(status ~ npsn + guru, method = "nb", trControl = train_control, data = Data)
+
+modelNB$results
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+

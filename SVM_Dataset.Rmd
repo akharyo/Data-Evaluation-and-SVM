@@ -1,0 +1,192 @@
+---
+title: "SVM_Random Dataset"
+output: html_document
+---
+
+
+
+```{r}
+set.seed(339933)
+```
+
+
+
+```{r}
+x <-  matrix(rnorm(100), 20, 2)
+x
+```
+
+
+
+```{r}
+y <-  factor(rep(c(-1, 1), c(10, 10)))
+y
+```
+
+
+
+```{r}
+x[y == 1, ] <- x[y == 1, ] + 3
+x
+```
+```{r}
+Data <- data.frame(x,y)
+head(Data)
+```
+
+
+
+``````{r, generate data}
+colnames(Data) <- c("Prtmna", "Shll", "qlty")
+head(Data)
+```
+
+
+
+```{r}
+plot(Data$Prtmna,Data$Shll, col = ifelse(y=="1", "blue", "red"), pch = 20)
+```
+
+
+
+```{r}
+library(e1071)
+```
+
+
+
+```{r, svmVis, warning = FALSE,message=FALSE}
+modelSVM1 <- svm(qlty ~ ., data = Data, kernel = "linear")
+```
+
+
+
+```{r}
+print(modelSVM1)
+```
+
+
+
+```{r, plotSVM}
+plot(modelSVM1, Data)
+```
+
+
+
+```{r}
+library(caret)
+```
+
+
+
+```{r}
+set.seed(123)
+```
+
+
+
+```{r}
+train_control <- trainControl(method="cv", number=5)
+```
+
+
+
+```{r}
+modelSVM2 <- train(qlty ~., data = Data, method = "svmLinear", trControl = train_control)
+```
+
+
+
+```{r, svmCrossVal, warning=FALSE, message=FALSE}
+modelSVM2$resample
+```
+
+
+
+```{r, svmCrossVal2}
+confusionMatrix(modelSVM2)
+```
+
+
+
+```{r}
+set.seed(134)
+```
+
+
+
+```{r}
+n <- 1500
+```
+
+
+
+```{r}
+x <- cbind(runif(n),runif(n))
+```
+
+
+
+```{r}
+eta  <- x[,2] - sin(10*x[,1])
+prob <- 1/(1+exp(-5*eta))
+y    <- 2*rbinom(n, 1, prob)-1
+y  <- as.factor(y)
+```
+
+
+
+```{r}
+Data2 <- data.frame(x,y)
+```
+
+
+
+```{r}
+colnames(Data2) <- c("Prtmna", "Shll", "qlty")
+head(Data2)
+```
+
+
+
+```{r}
+plot(Data2$Prtmna,Data2$Shll, col = ifelse(y=="1", "blue", "red"), pch = 20)
+legend("topright", c("Y=1","Y=-1"),pch=20,col=c("blue", "red"), inset=0.05, bg=gray(1), cex=1.5)
+``` 
+
+
+
+```{r}
+library(e1071)
+# set.seed(330)
+modelSVM3 <-  svm(qlty ~ ., data = Data2, kernel = "radial")
+print(modelSVM3)
+```
+
+
+
+```{r}
+plot(modelSVM3, Data2)
+```
+
+
+
+```{r}
+library(caret)
+set.seed(339)
+train_control2 <- trainControl(method="cv", number=10)
+modelSVM4 <- train(qlty ~., data = Data2, method = "svmRadial", trControl = train_control2)
+modelSVM4$resample
+```
+
+
+
+```{r}
+confusionMatrix(modelSVM4)
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
